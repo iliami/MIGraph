@@ -15,7 +15,9 @@
             <MenuItem Header="Файл" />
         </Menu>
         <StatusBar DockPanel.Dock="Bottom">
-            <TextBlock Text="{Binding Status}" />
+            <StatusBarItem>
+                <TextBlock Text="{Binding Status}" />
+            </StatusBarItem>
         </StatusBar>
         <TabControl>
             <TabItem>
