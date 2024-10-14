@@ -4,7 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d"
         xmlns:vm="clr-namespace:WpfUI.ViewModels"
+        xmlns:binding="clr-namespace:WpfUI.Infrastructure.Bindings"
         xmlns:l="clr-namespace:WpfUI"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         Title="{Binding Title}" 
         Height="450" Width="800">
     <Window.DataContext>
@@ -14,6 +16,9 @@
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="Файл">
                 <MenuItem Header="Выход" Command="{Binding CloseApplicationCommand}" />
+            </MenuItem>
+            <MenuItem Header="Помощь">
+                <MenuItem Header="О программе" />
             </MenuItem>
         </Menu>
         <StatusBar DockPanel.Dock="Bottom">
@@ -28,6 +33,34 @@
                         <TextBlock Text="Вкладка 1" />
                     </StackPanel>
                 </TabItem.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30" MinHeight="30" MaxHeight="80"/>
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <RadioButton GroupName="Type" Name="Vertex" Content="Вершины" Grid.Column="0" Grid.Row="0" />
+                    <RadioButton GroupName="Type" Name="Edge" Content="Ребра" Grid.Column="1" Grid.Row="0" />
+                    <Canvas x:Name="___No_Name_" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Grid.RowSpan="1" 
+                               DataContext="{Binding Canvas, Mode=OneWayToSource}" MouseLeftButtonDown="___No_Name__MouseLeftButtonDown">
+                               <!--Width="500"  Height="300"-->
+                        <!--<Canvas.CommandBindings>
+                            <CommandBinding Command="{Binding AddVertexCommand}" />
+                        </Canvas.CommandBindings>-->
+                        <Canvas.Background>
+                            <SolidColorBrush Color="#caddfc"/>
+                        </Canvas.Background>
+                        <!--<i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseLeftButtonDown">
+                                <i:InvokeCommandAction Command="{Binding AddVertexCommand}" 
+                                                       CommandParameter="{Binding Canvas.Cursor.Top, Canvas.Cursor.Left}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>-->
+                    </Canvas>
+                </Grid>
             </TabItem>
             <TabItem>
                 <TabItem.Header>
