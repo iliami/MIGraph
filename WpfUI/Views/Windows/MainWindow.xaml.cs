@@ -22,35 +22,5 @@ namespace WpfUI
         {
             InitializeComponent();
         }
-
-        private void ___No_Name__MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            var canvas = sender as Canvas;
-            if (canvas != null)
-            {
-
-                var context = DataContext as MainWindowViewModel;
-                if (context != null)
-                {
-                    var p = e.GetPosition(canvas);
-                    
-                    context.VertexCount += 1;
-                    var v = new Vertex(context.VertexCount.ToString(), p.X, p.Y);
-
-                    context.AddVertexCommand.Execute(v);
-
-                    var ellipse = new Ellipse()
-                    {
-                        Width=20,
-                        Height=20,
-                        Fill = Brushes.Blue
-                    };
-
-                    Canvas.SetLeft(ellipse, p.X);
-                    Canvas.SetTop(ellipse, p.Y);
-                    canvas.Children.Add(ellipse);
-                }
-            }
-        }
     }
 }

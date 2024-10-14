@@ -3,10 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d"
-        xmlns:vm="clr-namespace:WpfUI.ViewModels"
-        xmlns:binding="clr-namespace:WpfUI.Infrastructure.Bindings"
-        xmlns:l="clr-namespace:WpfUI"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:behaviours="clr-namespace:WpfUI.Infrastructure.Behaviours"
+        xmlns:vm="clr-namespace:WpfUI.ViewModels"
+        xmlns:m="clr-namespace:WpfUI.Models"
+        xmlns:l="clr-namespace:WpfUI"
+        xmlns:input="clr-namespace:System.Windows.Input;assembly=PresentationCore" d:DataContext="{d:DesignInstance Type=vm:MainWindowViewModel}"
         Title="{Binding Title}" 
         Height="450" Width="800">
     <Window.DataContext>
@@ -24,6 +26,15 @@
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBarItem>
                 <TextBlock Text="{Binding Status}" />
+            </StatusBarItem>
+            <StatusBarItem>
+                <StackPanel Orientation="Horizontal" >
+                    <TextBlock Text="X:" />
+                    <TextBlock Text="{Binding X}" />
+
+                    <TextBlock Text="Y:" Margin="5 0 0 0"/>
+                    <TextBlock Text="{Binding Y}" />
+                </StackPanel>
             </StatusBarItem>
         </StatusBar>
         <TabControl>
@@ -44,21 +55,56 @@
                     </Grid.RowDefinitions>
                     <RadioButton GroupName="Type" Name="Vertex" Content="Вершины" Grid.Column="0" Grid.Row="0" />
                     <RadioButton GroupName="Type" Name="Edge" Content="Ребра" Grid.Column="1" Grid.Row="0" />
-                    <Canvas x:Name="___No_Name_" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Grid.RowSpan="1" 
-                               DataContext="{Binding Canvas, Mode=OneWayToSource}" MouseLeftButtonDown="___No_Name__MouseLeftButtonDown">
-                               <!--Width="500"  Height="300"-->
-                        <!--<Canvas.CommandBindings>
-                            <CommandBinding Command="{Binding AddVertexCommand}" />
-                        </Canvas.CommandBindings>-->
+                    <Canvas x:Name="Graph"
+                            Grid.Column="0" Grid.Row="1" 
+                            Grid.ColumnSpan="2" Grid.RowSpan="1">
+                        <!--MouseLeftButtonDown="Graph_MouseLeftButtonDown">-->
+
                         <Canvas.Background>
-                            <SolidColorBrush Color="#caddfc"/>
-                        </Canvas.Background>
-                        <!--<i:Interaction.Triggers>
+                                <SolidColorBrush Color="#caddfc"/>
+                            </Canvas.Background>
+                        <ItemsControl ItemsSource="{Binding Verteces}">
+
+                            <ItemsControl.ItemContainerStyle>
+                                <Style TargetType="FrameworkElement">
+                                    <Setter Property="Canvas.Left" Value="{Binding Path=CanvasLeft}" />
+                                    <Setter Property="Canvas.Top" Value="{Binding Path=CanvasTop}" />
+                                </Style>
+                            </ItemsControl.ItemContainerStyle>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type m:Vertex}">
+                                    <Viewbox 
+                                        Width="{Binding Diameter}" Height="{Binding Diameter}">
+                                        <Grid>
+
+                                            <Ellipse 
+                                                Width="{Binding Diameter}" Height="{Binding Diameter}" 
+                                                Fill="Blue" />
+                                            <TextBlock 
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Background="Transparent"
+                                                FontWeight="Bold"
+                                                Text="{Binding Path=Name}" />
+                                        </Grid>
+                                    </Viewbox>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <Canvas IsItemsHost="True" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                        <i:Interaction.Behaviors>
+                            <behaviours:MouseBehaviour MouseX="{Binding X, Mode=OneWayToSource}" MouseY="{Binding Y, Mode=OneWayToSource}" />
+                        </i:Interaction.Behaviors>
+                        <i:Interaction.Triggers>
                             <i:EventTrigger EventName="MouseLeftButtonDown">
                                 <i:InvokeCommandAction Command="{Binding AddVertexCommand}" 
-                                                       CommandParameter="{Binding Canvas.Cursor.Top, Canvas.Cursor.Left}" />
+                                                       CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
                             </i:EventTrigger>
-                        </i:Interaction.Triggers>-->
+                        </i:Interaction.Triggers>
                     </Canvas>
                 </Grid>
             </TabItem>

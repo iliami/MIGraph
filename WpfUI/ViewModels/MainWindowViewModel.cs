@@ -2,7 +2,6 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using WpfUI.Infrastructure.Bindings;
 using WpfUI.Infrastructure.Commands;
 using WpfUI.Models;
 using WpfUI.ViewModels.Base;
@@ -68,17 +67,6 @@ namespace WpfUI.ViewModels
 
         #endregion
 
-        #region Canvas
-
-        private Canvas _Canvas;
-        public Canvas Canvas
-        {
-            get => _Canvas;
-            set => Set(ref _Canvas, value);
-        }
-
-        #endregion
-
         #region VertexCount
 
         private int _VertexCount;
@@ -90,13 +78,31 @@ namespace WpfUI.ViewModels
 
         #endregion
 
-        #region MousePosition
+        #region X
 
-        private MousePositionBinding _MousePosition = new();
-        public MousePositionBinding MousePosition
+        private double _X;
+        public double X
         {
-            get => _MousePosition;
-            set => Set(ref _MousePosition, value);
+            get => _X;
+            set {
+                value = Math.Round(value, 2);
+                Set(ref _X, value);
+            }
+        }
+
+        #endregion
+
+        #region Y
+
+        private double _Y;
+        public double Y
+        {
+            get => _Y;
+            set
+            {
+                value = Math.Round(value, 2);
+                Set(ref _Y, value);
+            }
         }
 
         #endregion
@@ -122,16 +128,10 @@ namespace WpfUI.ViewModels
 
         public void OnAddVertexCommandExecuted(object? parameter)
         {
-            if (parameter is Point point)
-            {
-                Vertex v = new("", point.X, point.Y);
-                Verteces.Add(v);
-            }
-            if (parameter is Vertex vertex)
-            {
-                Verteces.Add(vertex);
-            }
-        } 
+            VertexCount += 1;
+            var v = new Vertex(VertexCount.ToString(), X, Y);
+            Verteces.Add(v);
+        }
         #endregion
 
         #region RemoveVertexCommand
@@ -150,7 +150,7 @@ namespace WpfUI.ViewModels
 
                 Verteces.Remove(vToRemove);
             }
-        } 
+        }
         #endregion
 
         #endregion
@@ -170,6 +170,7 @@ namespace WpfUI.ViewModels
                 OnRemoveVertexCommandExecuted);
 
             #endregion
+
         }
     }
 }
