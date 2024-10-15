@@ -13,10 +13,14 @@ namespace WpfUI.Models
         public Vertex SecondVertex { get; set; } = secondVertex;
 
         public static bool operator ==(Edge left, Edge right)
-            => left.Name == right.Name 
-            && left.FirstVertex == right.FirstVertex 
+            => left.Name == right.Name
+            && left.FirstVertex == right.FirstVertex
             && left.SecondVertex == right.SecondVertex;
         public static bool operator !=(Edge left, Edge right)
-            => !(left == right);
+            => !( left == right );
+
+        public override bool Equals(object? obj) => base.Equals(obj);
+
+        public override int GetHashCode() => base.GetHashCode();
     }
 }

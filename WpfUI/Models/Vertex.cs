@@ -22,5 +22,9 @@ namespace WpfUI.Models
             && left.YPos == right.YPos;
         public static bool operator !=(Vertex left, Vertex right)
             => !(left == right);
+
+        public override bool Equals(object? obj) => base.Equals(obj);
+
+        public override int GetHashCode() => base.GetHashCode();
     }
 }
