@@ -56,9 +56,20 @@ namespace WpfUI.ViewModels
 
         #endregion
 
+        #region IsDefaultMode
+
+        private bool _IsDefaultMode = true;
+        public bool IsDefaultMode
+        {
+            get => _IsDefaultMode;
+            set => Set(ref _IsDefaultMode, value);
+        }
+
+        #endregion
+
         #region IsVertexAddingMode
 
-        private bool _IsVertexAddingMode;
+        private bool _IsVertexAddingMode = false;
         public bool IsVertexAddingMode
         {
             get => _IsVertexAddingMode;
@@ -69,7 +80,7 @@ namespace WpfUI.ViewModels
 
         #region IsEdgeAddingMode
 
-        private bool _IsEdgeAddingMode;
+        private bool _IsEdgeAddingMode = false;
         public bool IsEdgeAddingMode
         {
             get => _IsEdgeAddingMode;
@@ -165,6 +176,10 @@ namespace WpfUI.ViewModels
             var v = new Vertex(VertexCount.ToString(), X, Y);
             Verteces.Add(v);
         }
+
+        public bool CanAddVertexCommandExecute(object? parameter)
+            => IsVertexAddingMode;
+
         #endregion
 
         #region RemoveVertexCommand
@@ -187,9 +202,9 @@ namespace WpfUI.ViewModels
         #endregion
 
         #region SelectVertecesCommand
-        public ICommand SelectVertecesCommand { get; }
+        public ICommand SelectVertexCommand { get; }
 
-        public void OnSelectVertecesCommandExecuted(object? parameter)
+        public void OnSelectVertexCommandExecuted(object? parameter)
         {
             if (parameter is Vertex v)
             {
@@ -209,6 +224,9 @@ namespace WpfUI.ViewModels
             }
         }
 
+        public bool CanSelectVertexCommandExecute(object? parameter)
+            => IsEdgeAddingMode;
+
         #endregion
 
         #endregion
@@ -222,13 +240,15 @@ namespace WpfUI.ViewModels
                 CanCloseApplicationCommandExecute);
 
             AddVertexCommand = new LambdaCommand(
-                OnAddVertexCommandExecuted);
+                OnAddVertexCommandExecuted,
+                CanAddVertexCommandExecute);
 
             RemoveVertexCommand = new LambdaCommand(
                 OnRemoveVertexCommandExecuted);
 
-            SelectVertecesCommand = new LambdaCommand(
-                OnSelectVertecesCommandExecuted);
+            SelectVertexCommand = new LambdaCommand(
+                OnSelectVertexCommandExecuted,
+                CanSelectVertexCommandExecute);
 
             #endregion
 
