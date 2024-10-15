@@ -36,11 +36,22 @@ namespace WpfUI.ViewModels
 
         #region Verteces
 
-        private ObservableCollection<Vertex> _Verteces = new ObservableCollection<Vertex>();
+        private ObservableCollection<Vertex> _Verteces = new();
         public ObservableCollection<Vertex> Verteces
         {
             get => _Verteces;
             set => Set(ref _Verteces, value);
+        }
+
+        #endregion
+
+        #region Edges
+
+        private ObservableCollection<Edge> _Edges = new();
+        public ObservableCollection<Edge> Edges
+        {
+            get => _Edges;
+            set => Set(ref _Edges, value);
         }
 
         #endregion
@@ -107,6 +118,28 @@ namespace WpfUI.ViewModels
 
         #endregion
 
+        #region SelectedVertex1
+
+        private Vertex? _SelectedVertex1;
+        public Vertex? SelectedVertex1
+        {
+            get => _SelectedVertex1;
+            set => Set(ref _SelectedVertex1, value);
+        }
+
+        #endregion
+
+        #region SelectedVertex2
+
+        private Vertex? _SelectedVertex2;
+        public Vertex? SelectedVertex2
+        {
+            get => _SelectedVertex2;
+            set => Set(ref _SelectedVertex2, value);
+        }
+
+        #endregion
+
         #endregion
 
         #region Команды
@@ -153,6 +186,31 @@ namespace WpfUI.ViewModels
         }
         #endregion
 
+        #region SelectVertecesCommand
+        public ICommand SelectVertecesCommand { get; }
+
+        public void OnSelectVertecesCommandExecuted(object? parameter)
+        {
+            if (parameter is Vertex v)
+            {
+                if (SelectedVertex1 is null)
+                {
+                    SelectedVertex1 = v;
+                }
+                else
+                {
+                    SelectedVertex2 = v;
+                    Edge e = new("", SelectedVertex1, SelectedVertex2);
+
+                    Edges.Add(e);
+
+                    (SelectedVertex1, SelectedVertex2) = (null, null);
+                }
+            }
+        }
+
+        #endregion
+
         #endregion
 
         public MainWindowViewModel()
@@ -168,6 +226,9 @@ namespace WpfUI.ViewModels
 
             RemoveVertexCommand = new LambdaCommand(
                 OnRemoveVertexCommandExecuted);
+
+            SelectVertecesCommand = new LambdaCommand(
+                OnSelectVertecesCommandExecuted);
 
             #endregion
 

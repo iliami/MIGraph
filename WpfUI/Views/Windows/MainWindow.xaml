@@ -53,18 +53,17 @@
                         <RowDefinition Height="30" MinHeight="30" MaxHeight="80"/>
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <RadioButton GroupName="Type" Name="Vertex" Content="Вершины" Grid.Column="0" Grid.Row="0" />
-                    <RadioButton GroupName="Type" Name="Edge" Content="Ребра" Grid.Column="1" Grid.Row="0" />
+                    <RadioButton GroupName="Type" Name="Vertex" Content="Вершины" Grid.Column="0" Grid.Row="0" IsChecked="{Binding IsVertexAddingMode}"/>
+                    <RadioButton GroupName="Type" Name="Edge" Content="Ребра" Grid.Column="1" Grid.Row="0" IsChecked="{Binding IsEdgeAddingMode}"/>
                     <Canvas x:Name="Graph"
                             Grid.Column="0" Grid.Row="1" 
                             Grid.ColumnSpan="2" Grid.RowSpan="1">
-                        <!--MouseLeftButtonDown="Graph_MouseLeftButtonDown">-->
 
                         <Canvas.Background>
-                                <SolidColorBrush Color="#caddfc"/>
-                            </Canvas.Background>
-                        <ItemsControl ItemsSource="{Binding Verteces}">
+                            <SolidColorBrush Color="#caddfc"/>
+                        </Canvas.Background>
 
+                        <ItemsControl ItemsSource="{Binding Verteces}" Panel.ZIndex="3">
                             <ItemsControl.ItemContainerStyle>
                                 <Style TargetType="FrameworkElement">
                                     <Setter Property="Canvas.Left" Value="{Binding Path=CanvasLeft}" />
@@ -73,21 +72,34 @@
                             </ItemsControl.ItemContainerStyle>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate DataType="{x:Type m:Vertex}">
-                                    <Viewbox 
-                                        Width="{Binding Diameter}" Height="{Binding Diameter}">
-                                        <Grid>
-
-                                            <Ellipse 
-                                                Width="{Binding Diameter}" Height="{Binding Diameter}" 
-                                                Fill="Blue" />
-                                            <TextBlock 
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center"
-                                                Background="Transparent"
-                                                FontWeight="Bold"
-                                                Text="{Binding Path=Name}" />
-                                        </Grid>
-                                    </Viewbox>
+                                    <ContentControl 
+                                        Height="{Binding Diameter}"
+                                        Width="{Binding Diameter}">
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="MouseRightButtonDown">
+                                                <i:InvokeCommandAction 
+                                                    Command="{Binding DataContext.SelectVertecesCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
+                                                    CommandParameter="{Binding}"/>
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                        <Viewbox 
+                                            Width="{Binding Diameter}" 
+                                            Height="{Binding Diameter}">
+                                            <Grid>
+                                                <Ellipse 
+                                                    Width="{Binding Diameter}" 
+                                                    Height="{Binding Diameter}" 
+                                                    Fill="Blue"/>
+                                                <TextBlock 
+                                                    HorizontalAlignment="Center" 
+                                                    VerticalAlignment="Center" 
+                                                    Background="Transparent" 
+                                                    FontWeight="Bold" 
+                                                    Foreground="WhiteSmoke" 
+                                                    Text="{Binding Path=Name}" />
+                                            </Grid>
+                                        </Viewbox>
+                                    </ContentControl>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                             <ItemsControl.ItemsPanel>
@@ -96,9 +108,26 @@
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                         </ItemsControl>
+
+                        <ItemsControl ItemsSource="{Binding Edges}" Panel.ZIndex="2">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type m:Edge}">
+                                    <Line X1="{Binding FirstVertex.XPos}"  Y1="{Binding FirstVertex.YPos}" 
+                                          X2="{Binding SecondVertex.XPos}" Y2="{Binding SecondVertex.YPos}" 
+                                          Stroke="Black" StrokeThickness="2" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <Canvas IsItemsHost="True" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+
                         <i:Interaction.Behaviors>
                             <behaviours:MouseBehaviour MouseX="{Binding X, Mode=OneWayToSource}" MouseY="{Binding Y, Mode=OneWayToSource}" />
                         </i:Interaction.Behaviors>
+
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="MouseLeftButtonDown">
                                 <i:InvokeCommandAction Command="{Binding AddVertexCommand}" 
