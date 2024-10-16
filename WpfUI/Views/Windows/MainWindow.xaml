@@ -125,15 +125,23 @@
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                         </ItemsControl>
-
                         <i:Interaction.Behaviors>
-                            <behaviours:MouseBehaviour MouseX="{Binding X, Mode=OneWayToSource}" MouseY="{Binding Y, Mode=OneWayToSource}" />
+                            <behaviours:MouseBehaviour 
+                                MouseX="{Binding X, Mode=OneWayToSource}" 
+                                MouseY="{Binding Y, Mode=OneWayToSource}" />
                         </i:Interaction.Behaviors>
-
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="MouseLeftButtonDown">
-                                <i:InvokeCommandAction Command="{Binding AddVertexCommand}" 
-                                                       CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
+                                <i:InvokeCommandAction 
+                                    Command="{Binding AddVertexCommand}" />
+                            </i:EventTrigger>
+                            <i:EventTrigger EventName="MouseLeftButtonUp">
+                                <i:InvokeCommandAction 
+                                    Command="{Binding UnselectVertexCommand}" />
+                            </i:EventTrigger>
+                            <i:EventTrigger EventName="MouseMove">
+                                <i:InvokeCommandAction 
+                                    Command="{Binding MoveVertexCommand}" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Canvas>

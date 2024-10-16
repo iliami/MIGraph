@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using WpfUI.Infrastructure.Commands;
 using WpfUI.Models;
@@ -106,7 +105,8 @@ namespace WpfUI.ViewModels
         public double X
         {
             get => _X;
-            set {
+            set
+            {
                 value = Math.Round(value, 2);
                 Set(ref _X, value);
             }
@@ -151,6 +151,17 @@ namespace WpfUI.ViewModels
 
         #endregion
 
+        #region SelectedVertex
+
+        private Vertex? _SelectedVertex;
+        public Vertex? SelectedVertex
+        {
+            get => _SelectedVertex;
+            set => Set(ref _SelectedVertex, value);
+        }
+
+        #endregion
+
         #endregion
 
         #region Команды
@@ -182,50 +193,75 @@ namespace WpfUI.ViewModels
 
         #endregion
 
-        #region RemoveVertexCommand
-        public ICommand RemoveVertexCommand { get; }
-
-        public void OnRemoveVertexCommandExecuted(object? parameter)
-        {
-            if (parameter is Vertex v)
-            {
-                var vToRemove = Verteces.FirstOrDefault(vertex => vertex == v);
-
-                if (vToRemove is null)
-                {
-                    return;
-                }
-
-                Verteces.Remove(vToRemove);
-            }
-        }
-        #endregion
-
-        #region SelectVertecesCommand
+        #region SelectVertexCommand
         public ICommand SelectVertexCommand { get; }
 
         public void OnSelectVertexCommandExecuted(object? parameter)
         {
             if (parameter is Vertex v)
             {
-                if (SelectedVertex1 is null)
+                if (IsEdgeAddingMode)
                 {
-                    SelectedVertex1 = v;
+                    if (SelectedVertex1 is null)
+                    {
+                        SelectedVertex1 = v;
+                    }
+                    else
+                    {
+                        SelectedVertex2 = v;
+                        Edge e = new("", SelectedVertex1, SelectedVertex2);
+
+                        Edges.Add(e);
+
+                        (SelectedVertex1, SelectedVertex2) = (null, null);
+                    }
                 }
-                else
+                if (IsDefaultMode)
                 {
-                    SelectedVertex2 = v;
-                    Edge e = new("", SelectedVertex1, SelectedVertex2);
-
-                    Edges.Add(e);
-
-                    (SelectedVertex1, SelectedVertex2) = (null, null);
+                    if (SelectedVertex is null)
+                    {
+                        SelectedVertex = v;
+                    }
                 }
             }
         }
 
         public bool CanSelectVertexCommandExecute(object? parameter)
-            => IsEdgeAddingMode;
+            => IsEdgeAddingMode || IsDefaultMode;
+
+        #endregion
+
+        #region UnselectVertexCommand
+        public ICommand UnselectVertexCommand { get; }
+
+        public void OnUnselectVertexCommandExecuted(object? parameter)
+        {
+            if (SelectedVertex is not null)
+            {
+                SelectedVertex = null;
+            }
+        }
+
+        public bool CanUnselectVertexCommandExecute(object? parameter)
+            => IsDefaultMode && SelectedVertex is not null;
+
+        #endregion
+
+        #region MoveVertexCommand
+
+        public ICommand MoveVertexCommand { get; }
+
+        public void OnMoveVertexCommandExecuted(object? parameter)
+        {
+            if (SelectedVertex is not null)
+            {
+                SelectedVertex.XPos = X;
+                SelectedVertex.YPos = Y;
+            }
+        }
+
+        public bool CanMoveVertexCommandExecute(object? parameter)
+            => IsDefaultMode && SelectedVertex is not null;
 
         #endregion
 
@@ -243,12 +279,17 @@ namespace WpfUI.ViewModels
                 OnAddVertexCommandExecuted,
                 CanAddVertexCommandExecute);
 
-            RemoveVertexCommand = new LambdaCommand(
-                OnRemoveVertexCommandExecuted);
-
             SelectVertexCommand = new LambdaCommand(
                 OnSelectVertexCommandExecuted,
                 CanSelectVertexCommandExecute);
+
+            UnselectVertexCommand = new LambdaCommand(
+                OnUnselectVertexCommandExecuted,
+                CanUnselectVertexCommandExecute);
+
+            MoveVertexCommand = new LambdaCommand(
+                OnMoveVertexCommandExecuted,
+                CanMoveVertexCommandExecute);
 
             #endregion
 
