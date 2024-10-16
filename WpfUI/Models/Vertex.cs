@@ -28,8 +28,8 @@ namespace WpfUI.Models
             get => _XPos;
             set
             {
-                CanvasLeft = _XPos - Diameter / 2;
-                Set(ref _XPos, value);
+               Set(ref _XPos, value);
+               CanvasLeft = _XPos - _Diameter / 2;
             }
         }
 
@@ -37,7 +37,7 @@ namespace WpfUI.Models
 
         #region CanvasLeft
 
-        private double _CanvasLeft xPos - diameter / 2;
+        private double _CanvasLeft = xPos - diameter / 2;
         public double CanvasLeft
         {
             get => _CanvasLeft;
@@ -48,14 +48,14 @@ namespace WpfUI.Models
 
         #region YPos
 
-        private double _YPos;
+        private double _YPos = yPos;
         public double YPos
         {
             get => _YPos;
             set
             {
-                CanvasTop = _YPos - Diameter / 2;
                 Set(ref _YPos, value);
+                CanvasTop = _YPos - _Diameter / 2;
             }
         }
 
