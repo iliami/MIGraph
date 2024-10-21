@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WpfUI.Models.Base
+namespace WpfUI.ModelsFacade.Base
 {
     public abstract class INPC : INotifyPropertyChanged
     {
