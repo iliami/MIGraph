@@ -16,7 +16,8 @@
         <vm:MainWindowViewModel />
     </Window.DataContext>
     <Window.Resources>
-        <converters:ComparisonConverter x:Key="ComparisonConverter"/>
+        <converters:ComparisonConverter x:Key="ComparisonConverter" />
+        <converters:WidthHeightConverter x:Key="WidthHeightConverter" />
     </Window.Resources>
     <DockPanel>
         <Menu DockPanel.Dock="Top">
@@ -58,10 +59,10 @@
                         <RowDefinition Height="30" MinHeight="30" MaxHeight="80"/>
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <RadioButton GroupName="Mode" Name="Select" Content="По умолчанию" Grid.Column="0" Grid.Row="0" IsChecked="{Binding CurrentGraphMode, Converter={StaticResource ComparisonConverter}, ConverterParameter={x:Static vm:GraphMode.Default}}" />
-                    <RadioButton GroupName="Mode" Name="Vertex" Content="Добавить Вершины" Grid.Column="1" Grid.Row="0" IsChecked="{Binding CurrentGraphMode, Converter={StaticResource ComparisonConverter}, ConverterParameter={x:Static vm:GraphMode.AddVertex}}" />
-                    <RadioButton GroupName="Mode" Name="Edge" Content="Соединить вершины" Grid.Column="2" Grid.Row="0" IsChecked="{Binding CurrentGraphMode, Converter={StaticResource ComparisonConverter}, ConverterParameter={x:Static vm:GraphMode.AddEdge}}" />
-                    <Canvas x:Name="Graph"
+                    <RadioButton GroupName="Mode" Name="DefaulGraphMode" Content="По умолчанию" Grid.Column="0" Grid.Row="0" IsChecked="{Binding CurrentGraphMode, Converter={StaticResource ComparisonConverter}, ConverterParameter={x:Static vm:GraphMode.Default}}" />
+                    <RadioButton GroupName="Mode" Name="AddVertexGraphMode" Content="Добавить Вершины" Grid.Column="1" Grid.Row="0" IsChecked="{Binding CurrentGraphMode, Converter={StaticResource ComparisonConverter}, ConverterParameter={x:Static vm:GraphMode.AddVertex}}" />
+                    <RadioButton GroupName="Mode" Name="AddEdgeGraphMode" Content="Соединить вершины" Grid.Column="2" Grid.Row="0" IsChecked="{Binding CurrentGraphMode, Converter={StaticResource ComparisonConverter}, ConverterParameter={x:Static vm:GraphMode.AddEdge}}" />
+                    <Canvas x:Name="GraphCanvas"
                             Grid.Column="0" Grid.Row="1" 
                             Grid.ColumnSpan="3" Grid.RowSpan="1">
                         <Canvas.Background>
@@ -83,7 +84,12 @@
                                         <i:Interaction.Triggers>
                                             <i:EventTrigger EventName="MouseLeftButtonDown">
                                                 <i:InvokeCommandAction 
-                                                    Command="{Binding DataContext.GraphViewModel.SelectVertexCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
+                                                    Command="{Binding DataContext.GraphViewModel.SelectVertexOnDefaultModeCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
+                                                    CommandParameter="{Binding}"/>
+                                            </i:EventTrigger>
+                                            <i:EventTrigger EventName="MouseLeftButtonDown">
+                                                <i:InvokeCommandAction 
+                                                    Command="{Binding DataContext.GraphViewModel.SelectVerticesAndAddEdgeOnAddEdgeModeCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
                                                     CommandParameter="{Binding}"/>
                                             </i:EventTrigger>
                                         </i:Interaction.Triggers>
@@ -102,7 +108,7 @@
                                                     FontSize="{Binding FontSize}"
                                                     FontWeight="Bold" 
                                                     Foreground="{Binding Foreground}" 
-                                                    Text="{Binding Path=Name}" />
+                                                    Text="{Binding Name}" />
                                             </Grid>
                                         </Viewbox>
                                     </ContentControl>
@@ -141,11 +147,18 @@
                             </i:EventTrigger>
                             <i:EventTrigger EventName="MouseLeftButtonUp">
                                 <i:InvokeCommandAction 
-                                    Command="{Binding GraphViewModel.UnselectVertexCommand}" />
+                                    Command="{Binding GraphViewModel.UnselectVertexOnDefaultModeCommand}" />
                             </i:EventTrigger>
                             <i:EventTrigger EventName="MouseMove">
                                 <i:InvokeCommandAction 
-                                    Command="{Binding GraphViewModel.MoveVertexCommand}" />
+                                    Command="{Binding GraphViewModel.MoveVertexCommand}" >
+                                    <i:InvokeCommandAction.CommandParameter>
+                                        <MultiBinding Converter="{StaticResource WidthHeightConverter}">
+                                            <Binding Path="ActualWidth" ElementName="GraphCanvas"/>
+                                            <Binding Path="ActualHeight" ElementName="GraphCanvas"/>
+                                        </MultiBinding>
+                                    </i:InvokeCommandAction.CommandParameter>
+                                </i:InvokeCommandAction>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Canvas>

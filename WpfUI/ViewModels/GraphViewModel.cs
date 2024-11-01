@@ -40,7 +40,7 @@ namespace WpfUI.ViewModels
         #endregion
 
         #region SelectedVertex
-
+        private Color SelectedVertexPrevColor;
         private VertexViewModel? _SelectedVertex;
         public VertexViewModel? SelectedVertex
         {
@@ -50,13 +50,24 @@ namespace WpfUI.ViewModels
 
         #endregion
 
-        #region SelectedVertexPrevColor
-
-        private Color _SelectedVertexPrevColor;
-        public Color SelectedVertexPrevColor
+        #region FirstSelectedVertex
+        private Color FirstSelectedVertexPrevColor;
+        private VertexViewModel? _FirstSelectedVertex;
+        public VertexViewModel? FirstSelectedVertex
         {
-            get => _SelectedVertexPrevColor;
-            set => Set(ref _SelectedVertexPrevColor, value);
+            get => _FirstSelectedVertex;
+            set => Set(ref _FirstSelectedVertex, value);
+        }
+
+        #endregion
+
+        #region SecondSelectedVertex
+
+        private VertexViewModel? _SecondSelectedVertex;
+        public VertexViewModel? SecondSelectedVertex
+        {
+            get => _SecondSelectedVertex;
+            set => Set(ref _SecondSelectedVertex, value);
         }
 
         #endregion
@@ -121,6 +132,17 @@ namespace WpfUI.ViewModels
 
         public void OnAddVertexCommandExecuted(object? parameter)
         {
+            if (SelectedVertex is not null)
+            {
+                SelectedVertex.BackgroundColor = SelectedVertexPrevColor;
+                SelectedVertex = null;
+            }
+            if (FirstSelectedVertex is not null)
+            {
+                FirstSelectedVertex.BackgroundColor = FirstSelectedVertexPrevColor;
+                FirstSelectedVertex = null;
+            }
+
             var vertex = new Vertex(Vertices.Count.ToString(), X, Y);
             var vertexViewModel = new VertexViewModel(vertex);
 
@@ -133,63 +155,94 @@ namespace WpfUI.ViewModels
 
         #endregion
 
-        #region SelectVertexCommand
+        #region SelectVertexOnDefaultModeCommand
 
-        public ICommand SelectVertexCommand { get; }
+        public ICommand SelectVertexOnDefaultModeCommand { get; }
 
-        public void OnSelectVertexCommandExecuted(object? parameter)
+        public void OnSelectVertexOnDefaultModeCommandExecuted(object? parameter)
         {
             if (parameter is VertexViewModel vertexViewModel)
             {
-                if (SelectedVertex is null)
+                SelectedVertex = vertexViewModel;
+                SelectedVertexPrevColor = SelectedVertex.BackgroundColor;
+
+                if (FirstSelectedVertex is not null)
                 {
-                    SelectedVertex = vertexViewModel;
-                    SelectedVertexPrevColor = SelectedVertex.BackgroundColor;
+                    FirstSelectedVertex.BackgroundColor = FirstSelectedVertexPrevColor;
+                    FirstSelectedVertex = null;
+                }
+
+                int offset = 40;
+
+                SelectedVertex.BackgroundColor = Color.FromRgb(
+                    ( SelectedVertex.BackgroundColor.R > offset ) ? Convert.ToByte(SelectedVertex.BackgroundColor.R - offset) : SelectedVertex.BackgroundColor.R,
+                    ( SelectedVertex.BackgroundColor.G > offset ) ? Convert.ToByte(SelectedVertex.BackgroundColor.G - offset) : SelectedVertex.BackgroundColor.G,
+                    ( SelectedVertex.BackgroundColor.B > offset ) ? Convert.ToByte(SelectedVertex.BackgroundColor.B - offset) : SelectedVertex.BackgroundColor.B
+                    );
+            }
+        }
+
+        public bool CanSelectVertexOnDefaultModeCommandExecute(object? parameter)
+            => SelectedVertex is null && CurrentMode == GraphMode.Default;
+
+        #endregion
+
+        #region UnselectVertexOnDefaultModeCommand
+
+        public ICommand UnselectVertexOnDefaultModeCommand { get; }
+
+        public void OnUnselectVertexOnDefaultModeCommandExecuted(object? parameter)
+        {
+            SelectedVertex!.BackgroundColor = SelectedVertexPrevColor;
+            SelectedVertex = null;
+        }
+
+        public bool CanUnselectVertexOnDefaultModeCommandExecute(object? parameter)
+            => SelectedVertex is not null && CurrentMode == GraphMode.Default;
+
+        #endregion
+
+        #region SelectVerticesAndAddEdgeOnAddEdgeModeCommand
+
+        public ICommand SelectVerticesAndAddEdgeOnAddEdgeModeCommand { get; }
+
+        public void OnSelectVerticesAndAddEdgeOnAddEdgeModeCommandExecuted(object? parameter)
+        {
+            if (parameter is VertexViewModel vertexViewModel)
+            {
+                if (FirstSelectedVertex is null)
+                {
+                    FirstSelectedVertex = vertexViewModel;
+                    FirstSelectedVertexPrevColor = FirstSelectedVertex.BackgroundColor;
 
                     int offset = 40;
 
-                    SelectedVertex.BackgroundColor = Color.FromRgb(
-                        (SelectedVertex.BackgroundColor.R > offset ) ? Convert.ToByte(SelectedVertex.BackgroundColor.R - offset) : SelectedVertex.BackgroundColor.R,
-                        (SelectedVertex.BackgroundColor.G > offset ) ? Convert.ToByte(SelectedVertex.BackgroundColor.G - offset) : SelectedVertex.BackgroundColor.G,
-                        (SelectedVertex.BackgroundColor.B > offset ) ? Convert.ToByte(SelectedVertex.BackgroundColor.B - offset) : SelectedVertex.BackgroundColor.B
+                    FirstSelectedVertex.BackgroundColor = Color.FromRgb(
+                        ( FirstSelectedVertex.BackgroundColor.R > offset ) ? Convert.ToByte(FirstSelectedVertex.BackgroundColor.R - offset) : FirstSelectedVertex.BackgroundColor.R,
+                        ( FirstSelectedVertex.BackgroundColor.G > offset ) ? Convert.ToByte(FirstSelectedVertex.BackgroundColor.G - offset) : FirstSelectedVertex.BackgroundColor.G,
+                        ( FirstSelectedVertex.BackgroundColor.B > offset ) ? Convert.ToByte(FirstSelectedVertex.BackgroundColor.B - offset) : FirstSelectedVertex.BackgroundColor.B
                         );
                 }
-                else if (CurrentMode == GraphMode.AddEdge)
+                else
                 {
-                    (var firstVertex, var secondVertex) = (SelectedVertex.Vertex, vertexViewModel.Vertex);
+                    SecondSelectedVertex = vertexViewModel;
+
+                    (var firstVertex, var secondVertex) = (FirstSelectedVertex.Vertex, SecondSelectedVertex.Vertex);
 
                     var edge = new Edge(Edges.Count.ToString(), firstVertex, secondVertex);
-                    var edgeViewModel = new EdgeViewModel(edge, SelectedVertex, vertexViewModel);
+                    var edgeViewModel = new EdgeViewModel(edge, FirstSelectedVertex, SecondSelectedVertex);
 
                     Graph.Edges.Add(edge);
                     Edges.Add(edgeViewModel);
 
-                    SelectedVertex.BackgroundColor = SelectedVertexPrevColor;
-                    SelectedVertex = null;
+                    FirstSelectedVertex.BackgroundColor = FirstSelectedVertexPrevColor;
+                    FirstSelectedVertex = null;
+                    SecondSelectedVertex = null;
                 }
             }
         }
-
-        public bool CanSelectVertexCommandExecute(object? parameter)
-            => CurrentMode == GraphMode.Default || CurrentMode == GraphMode.AddEdge;
-
-        #endregion
-
-        #region UnselectVertexCommand
-
-        public ICommand UnselectVertexCommand { get; }
-
-        public void OnUnselectVertexCommandExecuted(object? parameter)
-        {
-            if (SelectedVertex is not null)
-            {
-                SelectedVertex.BackgroundColor = SelectedVertexPrevColor;
-                SelectedVertex = null;
-            }
-        }
-
-        public bool CanUnselectVertexCommandExecute(object? parameter)
-            => SelectedVertex is not null && CurrentMode == GraphMode.Default;
+        public bool CanSelectVerticesAndAddEdgeOnAddEdgeModeCommandExecute(object? parameter)
+            => CurrentMode == GraphMode.AddEdge;
 
         #endregion
 
@@ -199,15 +252,24 @@ namespace WpfUI.ViewModels
 
         public void OnMoveVertexCommandExecuted(object? parameter)
         {
-            if (SelectedVertex is not null)
-            {
-                SelectedVertex.X = X;
-                SelectedVertex.Y = Y;
-            }
+            SelectedVertex!.X = X;
+            SelectedVertex!.Y = Y;
         }
 
         public bool CanMoveVertexCommandExecute(object? parameter)
-            => SelectedVertex is not null && CurrentMode == GraphMode.Default;
+        {
+            if (parameter is object[] values)
+            {
+                var width = (double)values[0];
+                var height = (double)values[1];
+
+                return SelectedVertex is not null &&
+                       CurrentMode == GraphMode.Default &&
+                       SelectedVertex.Diameter / 2 < X && X < width - SelectedVertex.Diameter / 2 &&
+                       SelectedVertex.Diameter / 2 < Y && Y < height - SelectedVertex.Diameter / 2;
+            }
+            return false;
+        }
 
         #endregion
 
@@ -218,9 +280,10 @@ namespace WpfUI.ViewModels
             _Edges = new(graph.Edges.Select(e => new EdgeViewModel(e, _Vertices.First(v => e.FirstVertex == v.Vertex), _Vertices.First(v => e.SecondVertex == v.Vertex))));
 
             AddVertexCommand = new LambdaCommand(OnAddVertexCommandExecuted, CanAddVertexCommandExecute);
-            SelectVertexCommand = new LambdaCommand(OnSelectVertexCommandExecuted, CanSelectVertexCommandExecute);
-            UnselectVertexCommand = new LambdaCommand(OnUnselectVertexCommandExecuted, CanUnselectVertexCommandExecute);
+            SelectVertexOnDefaultModeCommand = new LambdaCommand(OnSelectVertexOnDefaultModeCommandExecuted, CanSelectVertexOnDefaultModeCommandExecute);
+            UnselectVertexOnDefaultModeCommand = new LambdaCommand(OnUnselectVertexOnDefaultModeCommandExecuted, CanUnselectVertexOnDefaultModeCommandExecute);
             MoveVertexCommand = new LambdaCommand(OnMoveVertexCommandExecuted, CanMoveVertexCommandExecute);
+            SelectVerticesAndAddEdgeOnAddEdgeModeCommand = new LambdaCommand(OnSelectVerticesAndAddEdgeOnAddEdgeModeCommandExecuted, CanSelectVerticesAndAddEdgeOnAddEdgeModeCommandExecute);
         }
     }
 }
