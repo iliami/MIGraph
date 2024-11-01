@@ -94,13 +94,14 @@
                                                 <Ellipse 
                                                     Width="{Binding Diameter}" 
                                                     Height="{Binding Diameter}" 
-                                                    Fill="Blue"/>
+                                                    Fill="{Binding Background}"/>
                                                 <TextBlock 
                                                     HorizontalAlignment="Center" 
                                                     VerticalAlignment="Center" 
                                                     Background="Transparent" 
+                                                    FontSize="{Binding FontSize}"
                                                     FontWeight="Bold" 
-                                                    Foreground="WhiteSmoke" 
+                                                    Foreground="{Binding Foreground}" 
                                                     Text="{Binding Path=Name}" />
                                             </Grid>
                                         </Viewbox>
@@ -119,7 +120,7 @@
                                 <DataTemplate DataType="{x:Type vm:EdgeViewModel}">
                                     <Line X1="{Binding FirstVertex.X}"  Y1="{Binding FirstVertex.Y}" 
                                           X2="{Binding SecondVertex.X}" Y2="{Binding SecondVertex.Y}" 
-                                          Stroke="Black" StrokeThickness="2" />
+                                          Stroke="{Binding Brush}" StrokeThickness="{Binding Thickness}" />
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                             <ItemsControl.ItemsPanel>

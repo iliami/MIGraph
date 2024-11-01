@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
+using System.Windows.Media;
 using WpfUI.Infrastructure.Commands;
 using WpfUI.Models;
 using WpfUI.ViewModels.Base;
@@ -45,6 +46,17 @@ namespace WpfUI.ViewModels
         {
             get => _SelectedVertex;
             set => Set(ref _SelectedVertex, value);
+        }
+
+        #endregion
+
+        #region SelectedVertexPrevColor
+
+        private Color _SelectedVertexPrevColor;
+        public Color SelectedVertexPrevColor
+        {
+            get => _SelectedVertexPrevColor;
+            set => Set(ref _SelectedVertexPrevColor, value);
         }
 
         #endregion
@@ -132,6 +144,15 @@ namespace WpfUI.ViewModels
                 if (SelectedVertex is null)
                 {
                     SelectedVertex = vertexViewModel;
+                    SelectedVertexPrevColor = SelectedVertex.BackgroundColor;
+
+                    int offset = 40;
+
+                    SelectedVertex.BackgroundColor = Color.FromRgb(
+                        (SelectedVertex.BackgroundColor.R > offset ) ? Convert.ToByte(SelectedVertex.BackgroundColor.R - offset) : SelectedVertex.BackgroundColor.R,
+                        (SelectedVertex.BackgroundColor.G > offset ) ? Convert.ToByte(SelectedVertex.BackgroundColor.G - offset) : SelectedVertex.BackgroundColor.G,
+                        (SelectedVertex.BackgroundColor.B > offset ) ? Convert.ToByte(SelectedVertex.BackgroundColor.B - offset) : SelectedVertex.BackgroundColor.B
+                        );
                 }
                 else if (CurrentMode == GraphMode.AddEdge)
                 {
@@ -143,6 +164,7 @@ namespace WpfUI.ViewModels
                     Graph.Edges.Add(edge);
                     Edges.Add(edgeViewModel);
 
+                    SelectedVertex.BackgroundColor = SelectedVertexPrevColor;
                     SelectedVertex = null;
                 }
             }
@@ -161,6 +183,7 @@ namespace WpfUI.ViewModels
         {
             if (SelectedVertex is not null)
             {
+                SelectedVertex.BackgroundColor = SelectedVertexPrevColor;
                 SelectedVertex = null;
             }
         }

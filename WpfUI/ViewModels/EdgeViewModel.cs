@@ -1,4 +1,5 @@
-﻿using WpfUI.Models;
+﻿using System.Windows.Media;
+using WpfUI.Models;
 using WpfUI.ViewModels.Base;
 
 namespace WpfUI.ViewModels
@@ -49,6 +50,28 @@ namespace WpfUI.ViewModels
         {
             get => _SecondVertex;
             set => Set(ref _SecondVertex, value);
+        }
+
+        #endregion
+
+        #region Brush
+
+        private Brush _Brush = new SolidColorBrush(Colors.Black);
+        public Brush Brush
+        {
+            get => _Brush;
+            set => Set(ref _Brush, value);
+        }
+
+        #endregion
+
+        #region Thickness
+
+        private int _Thickness = 4;
+        public int Thickness
+        {
+            get => _Thickness;
+            set => Set(ref _Thickness, value);
         }
 
         #endregion

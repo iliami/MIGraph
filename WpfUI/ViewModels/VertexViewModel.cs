@@ -1,13 +1,14 @@
-﻿using WpfUI.Models;
+﻿using System.Windows.Media;
+using WpfUI.Models;
 using WpfUI.ViewModels.Base;
 
 namespace WpfUI.ViewModels
 {
-    public class VertexViewModel(Vertex vertex) : ViewModel
+    public class VertexViewModel : ViewModel
     {
         #region Vertex
 
-        private Vertex _Vertex = vertex;
+        private Vertex _Vertex;
         public Vertex Vertex
         {
             get => _Vertex;
@@ -32,14 +33,13 @@ namespace WpfUI.ViewModels
 
         #region X
 
-        private double _X = vertex.X;
         public double X
         {
-            get => _X;
+            get => Vertex.X;
             set
             {
                 Vertex.X = value;
-                Set(ref _X, value);
+                OnPropertyChanged();
                 OnPropertyChanged(nameof(CanvasLeft));
             }
         }
@@ -83,5 +83,72 @@ namespace WpfUI.ViewModels
         }
 
         #endregion
+
+        #region FontSize
+
+        public int FontSize => 2 * Diameter / 3;
+
+        #endregion
+
+        #region ForegroundColor
+
+        private Color _ForegroundColor;
+        public Color ForegroundColor
+        {
+            get => _ForegroundColor;
+            set
+            {
+                Set(ref _ForegroundColor, value);
+                Foreground = new SolidColorBrush(value);
+            }
+        }
+
+        #endregion
+
+        #region Foreground
+
+        private Brush _Foreground;
+        public Brush Foreground
+        {
+            get => _Foreground;
+            set => Set(ref _Foreground, value);
+        }
+
+        #endregion
+
+        #region BackgroundColor
+
+        private Color _BackgroundColor;
+        public Color BackgroundColor
+        {
+            get => _BackgroundColor;
+            set
+            {
+                Set(ref _BackgroundColor, value);
+                Background = new SolidColorBrush(value);
+            }
+        }
+
+        #endregion
+
+        #region Background
+
+        private Brush _Background;
+        public Brush Background
+        {
+            get => _Background;
+            set => Set(ref _Background, value);
+        }
+
+        #endregion
+
+        public VertexViewModel(Vertex vertex)
+        {
+            _Vertex = vertex;
+            _ForegroundColor = Colors.WhiteSmoke;
+            _Foreground = new SolidColorBrush(_ForegroundColor);
+            _BackgroundColor = Color.FromRgb(34, 85, 119);
+            _Background = new SolidColorBrush(_BackgroundColor);
+        }
     }
 }
