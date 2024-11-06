@@ -11,7 +11,8 @@ namespace WpfUI.ViewModels
     {
         Default,
         AddVertex,
-        AddEdge
+        AddEdge,
+        RemoveElement
     }
 
     public class GraphViewModel : ViewModel
@@ -273,6 +274,35 @@ namespace WpfUI.ViewModels
 
         #endregion
 
+        #region RemoveElementCommand
+
+        public ICommand RemoveElementCommand { get; }
+
+        public void OnRemoveElementCommandExecuted(object? parameter)
+        {
+            if (parameter is EdgeViewModel edgeViewModel)
+            {
+                Graph.RemvoeEdge(edgeViewModel.Edge);
+                Edges.Remove(edgeViewModel);
+            }
+            if (parameter is VertexViewModel vertexViewModel)
+            {
+                var edgeViewModels = Edges.Where(e => e.FirstVertex == vertexViewModel || e.SecondVertex == vertexViewModel).ToList();
+                foreach (var edgeVM in edgeViewModels)
+                {
+                    Graph.RemvoeEdge(edgeVM.Edge);
+                    Edges.Remove(edgeVM);
+                }
+
+                Graph.RemoveVertex(vertexViewModel.Vertex);
+                Vertices.Remove(vertexViewModel);
+            }
+        }
+
+        public bool CanRemoveElementCommandExecute(object? parameter)
+            => CurrentMode == GraphMode.RemoveElement;
+
+        #endregion
         public GraphViewModel(Graph graph)
         {
             _Graph = graph;
@@ -284,6 +314,7 @@ namespace WpfUI.ViewModels
             UnselectVertexOnDefaultModeCommand = new LambdaCommand(OnUnselectVertexOnDefaultModeCommandExecuted, CanUnselectVertexOnDefaultModeCommandExecute);
             MoveVertexCommand = new LambdaCommand(OnMoveVertexCommandExecuted, CanMoveVertexCommandExecute);
             SelectVerticesAndAddEdgeOnAddEdgeModeCommand = new LambdaCommand(OnSelectVerticesAndAddEdgeOnAddEdgeModeCommandExecuted, CanSelectVerticesAndAddEdgeOnAddEdgeModeCommandExecute);
+            RemoveElementCommand = new LambdaCommand(OnRemoveElementCommandExecuted, CanRemoveElementCommandExecute);
         }
     }
 }
