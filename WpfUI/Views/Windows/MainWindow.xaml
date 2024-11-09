@@ -18,6 +18,8 @@
     <Window.Resources>
         <converters:ComparisonConverter x:Key="ComparisonConverter" />
         <converters:WidthHeightConverter x:Key="WidthHeightConverter" />
+        <converters:MidPointConverter x:Key="MidPointConverter" />
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </Window.Resources>
     <DockPanel>
         <Menu DockPanel.Dock="Top">
@@ -126,6 +128,26 @@
                                                     FontWeight="Bold" 
                                                     Foreground="{Binding Foreground}" 
                                                     Text="{Binding Name}" />
+                                                <Grid.ContextMenu>
+                                                    <ContextMenu FontSize="14">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition SharedSizeGroup="ColumnTextBlockGroup"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Text="Имя" VerticalAlignment="Center" Margin="5" Grid.Column="0" />
+                                                            <TextBox Text="{Binding Name}" Width="80" VerticalAlignment="Center" Margin="5" Grid.Column="1" HorizontalAlignment="Right"/>
+                                                        </Grid>
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition SharedSizeGroup="ColumnTextBlockGroup"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Text="Вес" VerticalAlignment="Center" Margin="5" Grid.Column="0" />
+                                                            <TextBox Text="{Binding Weight}" Width="80" VerticalAlignment="Center" Margin="5" Grid.Column="1" HorizontalAlignment="Right" />
+                                                        </Grid>
+                                                    </ContextMenu>
+                                                </Grid.ContextMenu>
                                             </Grid>
                                         </Viewbox>
                                     </ContentControl>
@@ -141,17 +163,56 @@
                         <ItemsControl ItemsSource="{Binding GraphViewModel.Edges}" Panel.ZIndex="2">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate DataType="{x:Type vm:EdgeViewModel}">
-                                    <Line X1="{Binding FirstVertex.X}"  Y1="{Binding FirstVertex.Y}" 
-                                          X2="{Binding SecondVertex.X}" Y2="{Binding SecondVertex.Y}" 
-                                          Stroke="{Binding Brush}" StrokeThickness="{Binding Thickness}">
+                                    <Canvas>
+                                        <Line X1="{Binding FirstVertex.X}" Y1="{Binding FirstVertex.Y}" X2="{Binding SecondVertex.X}" Y2="{Binding SecondVertex.Y}" Stroke="{Binding Background}" StrokeThickness="{Binding Thickness}" />
+                                        <Grid Visibility="{Binding IsWeightVisible, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Hidden}" >
+                                            <Ellipse Width="{Binding Diameter}" Height="{Binding Diameter}" Fill="{Binding Background}"/>
+                                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Background="Transparent" Foreground="{Binding Foreground}" FontSize="{Binding FontSize}" FontWeight="Bold" Text="{Binding Weight}" />
+                                            <Grid.RenderTransform>
+                                                <TranslateTransform>
+                                                    <TranslateTransform.X>
+                                                        <MultiBinding Converter="{StaticResource MidPointConverter}">
+                                                            <Binding Path="FirstVertex.X"/>
+                                                            <Binding Path="SecondVertex.X"/>
+                                                            <Binding RelativeSource="{RelativeSource AncestorType=Grid}" Path="ActualWidth" />
+                                                        </MultiBinding>
+                                                    </TranslateTransform.X>
+                                                    <TranslateTransform.Y>
+                                                        <MultiBinding Converter="{StaticResource MidPointConverter}">
+                                                            <Binding Path="FirstVertex.Y"/>
+                                                            <Binding Path="SecondVertex.Y"/>
+                                                            <Binding RelativeSource="{RelativeSource AncestorType=Grid}" Path="ActualHeight" />
+                                                        </MultiBinding>
+                                                    </TranslateTransform.Y>
+                                                </TranslateTransform>
+                                            </Grid.RenderTransform>
+                                        </Grid>
+                                        <Canvas.ContextMenu>
+                                            <ContextMenu FontSize="14">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition SharedSizeGroup="ColumnTextBlockGroup"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="Имя" VerticalAlignment="Center" Margin="5" Grid.Column="0" />
+                                                    <TextBox Text="{Binding Name}" Width="80" VerticalAlignment="Center" Margin="5" Grid.Column="1" HorizontalAlignment="Right"/>
+                                                </Grid>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition SharedSizeGroup="ColumnTextBlockGroup"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="Вес" VerticalAlignment="Center" Margin="5" Grid.Column="0" />
+                                                    <TextBox Text="{Binding Weight}" Width="80" VerticalAlignment="Center" Margin="5" Grid.Column="1" HorizontalAlignment="Right" />
+                                                </Grid>
+                                            </ContextMenu>
+                                        </Canvas.ContextMenu>
                                         <i:Interaction.Triggers>
                                             <i:EventTrigger EventName="MouseLeftButtonDown">
-                                                <i:InvokeCommandAction 
-                                                    Command="{Binding DataContext.GraphViewModel.RemoveElementCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                    CommandParameter="{Binding}" />
+                                                <i:InvokeCommandAction Command="{Binding DataContext.GraphViewModel.RemoveElementCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" />
                                             </i:EventTrigger>
                                         </i:Interaction.Triggers>
-                                    </Line>
+                                    </Canvas>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                             <ItemsControl.ItemsPanel>
