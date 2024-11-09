@@ -61,6 +61,20 @@ namespace WpfUI.ViewModels
 
         #endregion
 
+        #region Weight
+
+        public double Weight
+        {
+            get => Vertex.Weight;
+            set
+            {
+                Vertex.Weight = value;
+                OnPropertyChanged(nameof(Weight));
+            }
+        }
+
+        #endregion
+
         #region CanvasLeft
 
         public double CanvasLeft => X - Diameter / 2;
