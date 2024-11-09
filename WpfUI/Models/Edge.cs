@@ -5,5 +5,6 @@
         public string Name { get; set; } = name;
         public Vertex FirstVertex { get; set; } = firstVertex;
         public Vertex SecondVertex { get; set; } = secondVertex;
+        public double Weight { get; set; } = 0;
     }
 }
