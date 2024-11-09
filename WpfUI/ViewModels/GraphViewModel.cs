@@ -17,6 +17,7 @@ namespace WpfUI.ViewModels
 
     public class GraphViewModel : ViewModel
     {
+        private Dictionary<string, Func<string>> GetGraphRepresintationFunc { get; init; }
 
         #region Graph
 
@@ -122,6 +123,33 @@ namespace WpfUI.ViewModels
                 Set(ref _Y, value);
             }
         }
+
+        #endregion
+
+        #region GraphRepresintationVariations
+
+        public List<string> GraphRepresintationVariations => [..GetGraphRepresintationFunc.Keys];
+
+        #endregion
+
+        #region SelectedGraphRepresintationVariation
+
+        private string? _SelectedGraphRepresintationVariation;
+        public string? SelectedGraphRepresintationVariation
+        {
+            get => _SelectedGraphRepresintationVariation;
+            set
+            {
+                Set(ref _SelectedGraphRepresintationVariation, value);
+                OnPropertyChanged(nameof(GraphRepresintationForSelectedVariation));
+            }
+        }
+
+        #endregion
+
+        #region GraphRepresintationForSelectedVariation
+
+        public string GraphRepresintationForSelectedVariation => GetGraphRepresintationFunc[SelectedGraphRepresintationVariation]();
 
         #endregion
 
@@ -233,7 +261,7 @@ namespace WpfUI.ViewModels
                     var edge = new Edge(Edges.Count.ToString(), firstVertex, secondVertex);
                     var edgeViewModel = new EdgeViewModel(edge, FirstSelectedVertex, SecondSelectedVertex);
 
-                    Graph.Edges.Add(edge);
+                    Graph.AddEdge(edge);
                     Edges.Add(edgeViewModel);
 
                     FirstSelectedVertex.BackgroundColor = FirstSelectedVertexPrevColor;
@@ -290,12 +318,11 @@ namespace WpfUI.ViewModels
                 var edgeViewModels = Edges.Where(e => e.FirstVertex == vertexViewModel || e.SecondVertex == vertexViewModel).ToList();
                 foreach (var edgeVM in edgeViewModels)
                 {
-                    Graph.RemvoeEdge(edgeVM.Edge);
                     Edges.Remove(edgeVM);
                 }
+                Vertices.Remove(vertexViewModel);
 
                 Graph.RemoveVertex(vertexViewModel.Vertex);
-                Vertices.Remove(vertexViewModel);
             }
         }
 
@@ -308,6 +335,20 @@ namespace WpfUI.ViewModels
             _Graph = graph;
             _Vertices = new(graph.Vertices.Select(static v => new VertexViewModel(v)));
             _Edges = new(graph.Edges.Select(e => new EdgeViewModel(e, _Vertices.First(v => e.FirstVertex == v.Vertex), _Vertices.First(v => e.SecondVertex == v.Vertex))));
+
+            GetGraphRepresintationFunc = new() { 
+                { "Список вершин", 
+                    () => string.Join("\n", Graph.Vertices.Select((v, i) => $"{i} : {v}")) }, 
+                { "Список ребер", 
+                    () => string.Join("\n", Graph.Edges.Select((e, i) => $"{i} : {e}")) }, 
+                { "Матрица смежности", 
+                    () => string.Join("\n", Graph.AdjMatrix.Select((row) => string.Join(", ", row.Select(b => b ? '1' : '0')))) }, 
+                { "Матрица ицидентности", 
+                    () => string.Join("\n", Graph.IncMatrix.Select((row) => string.Join(", ", row.Select(b => b ? '1' : '0')))) }, 
+                { "Список смежности", 
+                    () => string.Join("\n", Graph.AdjList.Select((pair) => $"{pair.Key.Name} : {string.Join(", ", pair.Value.Select(v => v.Name))}")) }, 
+                { "Список инцидентности", 
+                    () => string.Join("\n", Graph.IncList.Select(pair => $"{pair.Key.Name} : {string.Join(", ", pair.Value.Select(e => e.Name))}")) } };
 
             AddVertexCommand = new LambdaCommand(OnAddVertexCommandExecuted, CanAddVertexCommandExecute);
             SelectVertexOnDefaultModeCommand = new LambdaCommand(OnSelectVertexOnDefaultModeCommandExecuted, CanSelectVertexOnDefaultModeCommandExecute);
