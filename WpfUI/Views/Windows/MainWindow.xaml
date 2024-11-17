@@ -344,7 +344,6 @@
                         <ListBox
                             FontSize="20"
                             ItemsSource="{Binding GraphViewModel.GraphRepresintationVariations}"
-                            SelectedIndex="0"
                             SelectedItem="{Binding GraphViewModel.SelectedGraphRepresintationVariation}" />
                     </GroupBox>
                     <GroupBox

@@ -128,14 +128,14 @@ namespace WpfUI.ViewModels
 
         #region GraphRepresintationVariations
 
-        public List<string> GraphRepresintationVariations => [..GetGraphRepresintationFunc.Keys];
+        public List<string> GraphRepresintationVariations => [.. GetGraphRepresintationFunc.Keys];
 
         #endregion
 
         #region SelectedGraphRepresintationVariation
 
-        private string? _SelectedGraphRepresintationVariation;
-        public string? SelectedGraphRepresintationVariation
+        private string _SelectedGraphRepresintationVariation;
+        public string SelectedGraphRepresintationVariation
         {
             get => _SelectedGraphRepresintationVariation;
             set
@@ -150,7 +150,7 @@ namespace WpfUI.ViewModels
         #region GraphRepresintationForSelectedVariation
 
         public string GraphRepresintationForSelectedVariation => GetGraphRepresintationFunc[SelectedGraphRepresintationVariation]();
-
+         
         #endregion
 
 
@@ -177,6 +177,7 @@ namespace WpfUI.ViewModels
 
             Graph.AddVertex(vertex);
             Vertices.Add(vertexViewModel);
+            OnPropertyChanged(nameof(GraphRepresintationForSelectedVariation));
         }
 
         public bool CanAddVertexCommandExecute(object? parameter)
@@ -267,6 +268,7 @@ namespace WpfUI.ViewModels
                     FirstSelectedVertex.BackgroundColor = FirstSelectedVertexPrevColor;
                     FirstSelectedVertex = null;
                     SecondSelectedVertex = null;
+                    OnPropertyChanged(nameof(GraphRepresintationForSelectedVariation));
                 }
             }
         }
@@ -283,6 +285,7 @@ namespace WpfUI.ViewModels
         {
             SelectedVertex!.X = X;
             SelectedVertex!.Y = Y;
+            OnPropertyChanged(nameof(GraphRepresintationForSelectedVariation));
         }
 
         public bool CanMoveVertexCommandExecute(object? parameter)
@@ -312,6 +315,7 @@ namespace WpfUI.ViewModels
             {
                 Graph.RemvoeEdge(edgeViewModel.Edge);
                 Edges.Remove(edgeViewModel);
+                OnPropertyChanged(nameof(GraphRepresintationForSelectedVariation));
             }
             if (parameter is VertexViewModel vertexViewModel)
             {
@@ -323,6 +327,7 @@ namespace WpfUI.ViewModels
                 Vertices.Remove(vertexViewModel);
 
                 Graph.RemoveVertex(vertexViewModel.Vertex);
+                OnPropertyChanged(nameof(GraphRepresintationForSelectedVariation));
             }
         }
 
@@ -350,6 +355,7 @@ namespace WpfUI.ViewModels
                 { "Список инцидентности", 
                     () => string.Join("\n", Graph.IncList.Select(pair => $"{pair.Key.Name} : {string.Join(", ", pair.Value.Select(e => e.Name))}")) } };
 
+            _SelectedGraphRepresintationVariation = GetGraphRepresintationFunc.Keys.First();
             AddVertexCommand = new LambdaCommand(OnAddVertexCommandExecuted, CanAddVertexCommandExecute);
             SelectVertexOnDefaultModeCommand = new LambdaCommand(OnSelectVertexOnDefaultModeCommandExecuted, CanSelectVertexOnDefaultModeCommandExecute);
             UnselectVertexOnDefaultModeCommand = new LambdaCommand(OnUnselectVertexOnDefaultModeCommandExecuted, CanUnselectVertexOnDefaultModeCommandExecute);
