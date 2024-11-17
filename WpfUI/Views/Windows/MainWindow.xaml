@@ -350,7 +350,13 @@
                         Grid.Column="1"
                         Grid.ColumnSpan="2"
                         Header="Числовое представление">
-                        <TextBlock FontSize="20" Text="{Binding GraphViewModel.GraphRepresintationForSelectedVariation}" />
+                        <TextBox
+                            Background="Transparent"
+                            BorderThickness="0"
+                            FontSize="20"
+                            IsReadOnly="True"
+                            Text="{Binding GraphViewModel.GraphRepresintationForSelectedVariation, Mode=OneWay}"
+                            TextWrapping="Wrap" />
                     </GroupBox>
                 </Grid>
             </TabItem>
