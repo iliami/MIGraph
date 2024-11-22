@@ -91,7 +91,7 @@
             Vertices.Remove(vertex);
         }
 
-        public void RemvoeEdge(Edge edge)
+        public void RemoveEdge(Edge edge)
         {
             var indexFirstVertex = Vertices.IndexOf(edge.FirstVertex);
             var indexSecondVertex = Vertices.IndexOf(edge.SecondVertex);

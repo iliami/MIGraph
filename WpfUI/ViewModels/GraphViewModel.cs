@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Windows.Input;
 using System.Windows.Media;
 using WpfUI.Infrastructure.Commands;
@@ -150,7 +151,7 @@ namespace WpfUI.ViewModels
         #region GraphRepresintationForSelectedVariation
 
         public string GraphRepresintationForSelectedVariation => GetGraphRepresintationFunc[SelectedGraphRepresintationVariation]();
-         
+
         #endregion
 
 
@@ -313,7 +314,7 @@ namespace WpfUI.ViewModels
         {
             if (parameter is EdgeViewModel edgeViewModel)
             {
-                Graph.RemvoeEdge(edgeViewModel.Edge);
+                Graph.RemoveEdge(edgeViewModel.Edge);
                 Edges.Remove(edgeViewModel);
                 OnPropertyChanged(nameof(GraphRepresintationForSelectedVariation));
             }
@@ -341,18 +342,44 @@ namespace WpfUI.ViewModels
             _Vertices = new(graph.Vertices.Select(static v => new VertexViewModel(v)));
             _Edges = new(graph.Edges.Select(e => new EdgeViewModel(e, _Vertices.First(v => e.FirstVertex == v.Vertex), _Vertices.First(v => e.SecondVertex == v.Vertex))));
 
-            GetGraphRepresintationFunc = new() { 
-                { "Список вершин", 
-                    () => string.Join("\n", Graph.Vertices.Select((v, i) => $"{i} : {v}")) }, 
-                { "Список ребер", 
-                    () => string.Join("\n", Graph.Edges.Select((e, i) => $"{i} : {e}")) }, 
-                { "Матрица смежности", 
-                    () => string.Join("\n", Graph.AdjMatrix.Select((row) => string.Join(", ", row.Select(b => b ? '1' : '0')))) }, 
-                { "Матрица ицидентности", 
-                    () => string.Join("\n", Graph.IncMatrix.Select((row) => string.Join(", ", row.Select(b => b ? '1' : '0')))) }, 
-                { "Список смежности", 
-                    () => string.Join("\n", Graph.AdjList.Select((pair) => $"{pair.Key.Name} : {string.Join(", ", pair.Value.Select(v => v.Name))}")) }, 
-                { "Список инцидентности", 
+            GetGraphRepresintationFunc = new() {
+                { "Список вершин",
+                    () => string.Join("\n", Graph.Vertices.Select((v, i) => $"{i} : {v}")) },
+                { "Список ребер",
+                    () => string.Join("\n", Graph.Edges.Select((e, i) => $"{i} : {e}")) },
+                { "Матрица смежности",
+                    () => string.Join("\n", Graph.AdjMatrix.Select((row) => string.Join(", ", row.Select(b => b ? '1' : '0')))) },
+                { "Матрица ицидентности",
+                    () => string.Join("\n", Graph.IncMatrix.Select((row) => string.Join(", ", row.Select(b => b ? '1' : '0')))) },
+                { "Матрица весов",
+                    () =>
+                    {
+                        IList<IList<double>> weightMatrix = [];
+                        for (var i = 0; i < Graph.Vertices.Count; i++)
+                        {
+                            weightMatrix.Add(Enumerable.Repeat(double.PositiveInfinity, Graph.Vertices.Count).ToList());
+                        }
+                        for (var i = 0; i < Graph.Vertices.Count; i++)
+                        {
+                            var v1 = Graph.Vertices[i];
+                            for (var j = i + 1; j < Graph.Vertices.Count; j++)
+                            {
+                                var v2 = Graph.Vertices[j];
+
+                                if (Graph.AdjList[v1].Contains(v2))
+                                {
+                                    var edge = Graph.IncList[v1].First(e => e.FirstVertex == v2 || e.SecondVertex == v2);
+                                    weightMatrix[i][j] = edge.Weight;
+                                    weightMatrix[j][i] = edge.Weight;
+                                }
+                            }
+                        }
+                        return string.Join("\n", weightMatrix.Select((row) => string.Join(", ", row.Select(w => (w == double.PositiveInfinity) ? w.ToString() : w.ToString("###0.###", CultureInfo.InvariantCulture))))); 
+                    }
+                },
+                { "Список смежности",
+                    () => string.Join("\n", Graph.AdjList.Select((pair) => $"{pair.Key.Name} : {string.Join(", ", pair.Value.Select(v => v.Name))}")) },
+                { "Список инцидентности",
                     () => string.Join("\n", Graph.IncList.Select(pair => $"{pair.Key.Name} : {string.Join(", ", pair.Value.Select(e => e.Name))}")) } };
 
             _SelectedGraphRepresintationVariation = GetGraphRepresintationFunc.Keys.First();
